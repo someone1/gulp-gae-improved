@@ -4,6 +4,7 @@ var through = require('through2'),
   path = require('path'),
   gutil = require('gulp-util'),
   spawn = require('child_process').spawn,
+  builtin_gae = require('google-app-engine')(),
 
   PluginError = gutil.PluginError,
   File = gutil.File;
@@ -13,7 +14,7 @@ module.exports = function (action, args, params, gae_dir) {
   action = action || 'dev_appserver.py';
   args = args || [];
   params = params || {};
-  gae_dir = gae_dir || __dirname + '/node_modules/google-app-engine';
+  gae_dir = gae_dir || builtin_gae;
 
   var proc;
 
