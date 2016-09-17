@@ -1,7 +1,6 @@
 'use strict';
 
 var through = require('through2'),
-  path = require('path'),
   gutil = require('gulp-util'),
   spawn = require('child_process').spawn,
 
@@ -51,7 +50,7 @@ module.exports = function (action, args, params, gae_dir) {
   }
 
   function bufferContents(file, enc, cb) {
-    var appYamlPath = path.dirname(file.path),
+    var appYamlPath = file.path,
       shouldWait = false;
 
     if (action == 'dev_appserver.py') {
