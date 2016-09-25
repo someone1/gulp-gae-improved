@@ -17,7 +17,7 @@ module.exports = function (action, args, params, gae_dir) {
   var proc;
 
   if (['dev_appserver.py', 'appcfg.py'].indexOf(action) == -1) {
-    throw new PluginError('gulp-gae', 'Invalid action ' + action + '. Supported actions are dev_appserver.py and appcfg.py');
+    throw new PluginError('gulp-gae-improved', 'Invalid action ' + action + '. Supported actions are dev_appserver.py and appcfg.py');
   }
 
   function parseParams(params) {
@@ -36,7 +36,7 @@ module.exports = function (action, args, params, gae_dir) {
 
   function runScript(file, args, params, cb) {
     var scriptArgs = args.concat(parseParams(params));
-    gutil.log('[gulp-gae]', scriptArgs);
+    gutil.log('[gulp-gae-improved]', scriptArgs);
     proc = spawn(gae_dir + '/' + file, scriptArgs);
     proc.stdout.pipe(process.stdout);
     proc.stderr.pipe(process.stderr);
@@ -44,7 +44,7 @@ module.exports = function (action, args, params, gae_dir) {
   }
 
   function stopScript() {
-    gutil.log('[gulp-gae]', 'stopping script');
+    gutil.log('[gulp-gae-improved]', 'stopping script');
     proc && proc.kill('SIGHUP');
     proc = null;
   }

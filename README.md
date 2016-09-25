@@ -1,13 +1,13 @@
-gulp-gae
+gulp-gae-improved
 ========
 
 # Installation
-`npm install gulp-gae --save-dev`
+`npm install gulp-gae-improved --save-dev`
 
 # Usage
 ```javascript
 var gulp = require('gulp'),
-  gae = require('gulp-gae');
+  gae = require('gulp-gae-improved');
 
 // Optionally you can omit gae_dir parameter to use built-in appengine library
 var gae_dir = '/home/user/google-appengine';
