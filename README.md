@@ -1,6 +1,12 @@
 gulp-gae-improved
 ========
 
+Note: This is a fork from maciejzasada's repository gulp-gae:  https://github.com/maciejzasada/gulp-gae
+
+We created this new repository due to the need of some additional changes...
+
+========
+
 # Installation
 `npm install gulp-gae-improved --save-dev`
 
