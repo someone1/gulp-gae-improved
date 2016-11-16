@@ -13,13 +13,14 @@ gulp.task('gae-serve', function () {
 });
 
 
-gulp.task('gae-deploy', function (done) {
-  gulp.src('app/app.yaml')
+gulp.task('gae-deploy', function () {
+  return gulp.src('app/app.yaml')
     .pipe(gae('appcfg.py', {
       commands: ['update'],
       version: 'dev',
+      async: false,
       oauth2: undefined // for value-less parameters
-    }, done));
+    }));
 });
 
 

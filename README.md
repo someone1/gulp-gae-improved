@@ -29,15 +29,16 @@ gulp.task('gae-serve', function () {
     }));
 });
 
-// In the next example the gulp tasks are blocked until done
-gulp.task('gae-deploy', function (done) {
-  gulp.src('app/app.yaml')
+// In the next example the gulp tasks are blocked until script is done
+gulp.task('gae-deploy', function () {
+  return gulp.src('app/app.yaml')
     .pipe(gae('appcfg.py', {
       commands: ['update'],
       version: 'dev',
+      async: false,
       oauth2: undefined, // for value-less parameters
       oauth2_refresh_token: 'jfd90834jf90j4&Y#*&#4lojhfi83'
-    }, done));
+    }));
 });
 
 
@@ -49,4 +50,5 @@ For a working example see the `test` folder.
 
 1. **commands**: Array of commands to execute (like: ['help', 'update']), defaults to [];
 2. **gae_dir**: Path to appengine library, defaults to built-in
-3. All default parameters from both `appcfg.py` and `dev_appserver`
+4. **async**: Allow processes to run in 'background' in parallel to the current tasks, defaults to true;
+5. All default parameters from both `appcfg.py` and `dev_appserver`
