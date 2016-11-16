@@ -1,7 +1,6 @@
 'use strict';
 
 var through = require('through2'),
-  path = require('path'),
   gutil = require('gulp-util'),
   spawn = require('child_process').spawn,
 
@@ -9,15 +8,16 @@ var through = require('through2'),
   File = gutil.File;
 
 
-module.exports = function (action, args, params) {
+module.exports = function (action, args, params, gae_dir) {
   action = action || 'dev_appserver.py';
   args = args || [];
   params = params || {};
+  gae_dir = gae_dir || __dirname + '/node_modules/google-app-engine';
 
   var proc;
 
   if (['dev_appserver.py', 'appcfg.py'].indexOf(action) == -1) {
-    throw new PluginError('gulp-gae', 'Invalid action ' + action + '. Supported actions are dev_appserver.py and appcfg.py');
+    throw new PluginError('gulp-gae-improved', 'Invalid action ' + action + '. Supported actions are dev_appserver.py and appcfg.py');
   }
 
   function parseParams(params) {
@@ -36,21 +36,21 @@ module.exports = function (action, args, params) {
 
   function runScript(file, args, params, cb) {
     var scriptArgs = args.concat(parseParams(params));
-    gutil.log('[gulp-gae]', scriptArgs);
-    proc = spawn(file, scriptArgs);
+    gutil.log('[gulp-gae-improved]', scriptArgs);
+    proc = spawn(gae_dir + '/' + file, scriptArgs);
     proc.stdout.pipe(process.stdout);
     proc.stderr.pipe(process.stderr);
     cb && cb();
   }
 
   function stopScript() {
-    gutil.log('[gulp-gae]', 'stopping script');
+    gutil.log('[gulp-gae-improved]', 'stopping script');
     proc && proc.kill('SIGHUP');
     proc = null;
   }
 
   function bufferContents(file, enc, cb) {
-    var appYamlPath = path.dirname(file.path),
+    var appYamlPath = file.path,
       shouldWait = false;
 
     if (action == 'dev_appserver.py') {
