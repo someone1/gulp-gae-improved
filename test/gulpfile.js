@@ -4,7 +4,7 @@ var gulp = require('gulp'),
 
 gulp.task('gae-serve', function () {
   gulp.src('app/app.yaml')
-    .pipe(gae('dev_appserver.py', [], {
+    .pipe(gae('dev_appserver.py', {
       port: 8081,
       host: '0.0.0.0',
       admin_port: 8001,
@@ -13,12 +13,13 @@ gulp.task('gae-serve', function () {
 });
 
 
-gulp.task('gae-deploy', function () {
+gulp.task('gae-deploy', function (done) {
   gulp.src('app/app.yaml')
-    .pipe(gae('appcfg.py', ['update'], {
+    .pipe(gae('appcfg.py', {
+      commands: ['update'],
       version: 'dev',
       oauth2: undefined // for value-less parameters
-    }));
+    }, done));
 });
 
 
