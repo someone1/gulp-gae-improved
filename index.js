@@ -16,7 +16,7 @@ module.exports = function (script, options) {
     gae_dir: builtin_gae
   }
 
-  const conf = objectAssign({}, defaults, options);
+  var conf = objectAssign({}, defaults, options);
 
   if (['dev_appserver.py', 'appcfg.py'].indexOf(script) == -1) {
     throw new PluginError('gulp-gae', 'Invalid script ' + script + '. Supported scripts are dev_appserver.py and appcfg.py');
