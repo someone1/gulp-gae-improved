@@ -1,7 +1,6 @@
 'use strict';
 
 var through = require('through2'),
-  path = require('path'),
   gutil = require('gulp-util'),
   spawn = require('child_process').spawn,
   builtin_gae = require('google-app-engine')(),
@@ -43,7 +42,7 @@ module.exports = function (script, options, callback) {
 
   function runScript(file, args, params, cb) {
     var scriptArgs = args.concat(parseParams(params));
-    gutil.log('[gulp-gae]', scriptArgs);
+    gutil.log('[gulp-gae-improved]', scriptArgs);
     proc = spawn(conf.gae_dir + '/' + file, scriptArgs);
     proc.stdout.pipe(process.stdout);
     proc.stderr.pipe(process.stderr);
@@ -51,16 +50,15 @@ module.exports = function (script, options, callback) {
   }
 
   function stopScript() {
-    gutil.log('[gulp-gae]', 'stopping script');
+    gutil.log('[gulp-gae-improved]', 'stopping script');
     proc && proc.kill('SIGHUP');
     proc = null;
     callback && callback();
   }
 
   function bufferContents(file, enc, cb) {
-    var appYamlPath = path.dirname(file.path),
-      shouldWait = false,
-      args;
+    var appYamlPath = file.path,
+      shouldWait = false;
 
     if (script == 'dev_appserver.py') {
       args = [appYamlPath];

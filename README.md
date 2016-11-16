@@ -1,8 +1,14 @@
-gulp-gae
+gulp-gae-improved
+========
+
+Note: This is a fork from maciejzasada's repository gulp-gae:  https://github.com/maciejzasada/gulp-gae
+
+We created this new repository due to the need of some additional changes...
+
 ========
 
 # Installation
-`npm install gulp-gae --save-dev`
+`npm install gulp-gae-improved --save-dev`
 
 # Usage
 ```javascript
@@ -11,7 +17,7 @@ gae('script', options, [exitCallback]);
 
 ```javascript
 var gulp = require('gulp'),
-  gae = require('gulp-gae');
+  gae = require('gulp-gae-improved');
 
 gulp.task('gae-serve', function () {
   gulp.src('app/app.yaml')
