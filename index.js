@@ -58,7 +58,8 @@ module.exports = function (script, options, callback) {
 
   function bufferContents(file, enc, cb) {
     var appYamlPath = file.path,
-      shouldWait = false;
+      shouldWait = false,
+      args;
 
     if (script == 'dev_appserver.py') {
       args = [appYamlPath];
