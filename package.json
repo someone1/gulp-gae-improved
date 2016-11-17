@@ -28,8 +28,9 @@
     "gulp": "^3.9.0"
   },
   "dependencies": {
-    "google-app-engine": "klarkc/google-app-engine-php",
+    "google-app-engine": "^1.9.37",
     "gulp-util": "^3.0.6",
+    "object-assign": "^4.1.0",
     "through2": "^2.0.0"
   }
 }
