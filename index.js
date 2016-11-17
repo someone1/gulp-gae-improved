@@ -3,26 +3,32 @@
 var through = require('through2'),
   gutil = require('gulp-util'),
   spawn = require('child_process').spawn,
-
+  builtin_gae = require('google-app-engine')(),
+  objectAssign = require('object-assign'),
   PluginError = gutil.PluginError,
   File = gutil.File;
 
 
-module.exports = function (action, args, params, gae_dir) {
-  action = action || 'dev_appserver.py';
-  args = args || [];
-  params = params || {};
-  gae_dir = gae_dir || __dirname + '/node_modules/google-app-engine';
+module.exports = function (script, options) {
+  var defaults = {
+    commands: [],
+    async: true,
+    gae_dir: builtin_gae
+  }
 
-  var proc;
+  var conf = objectAssign({}, defaults, options);
 
-  if (['dev_appserver.py', 'appcfg.py'].indexOf(action) == -1) {
-    throw new PluginError('gulp-gae-improved', 'Invalid action ' + action + '. Supported actions are dev_appserver.py and appcfg.py');
+  if (['dev_appserver.py', 'appcfg.py'].indexOf(script) == -1) {
+    throw new PluginError('gulp-gae', 'Invalid script ' + script + '. Supported scripts are dev_appserver.py and appcfg.py');
   }
 
   function parseParams(params) {
     var p = [];
     for (var key in params) {
+      if (key === 'commands') continue;
+      if (key === 'gae_dir') continue;
+      if (key === 'async') continue;
+
       var value = params[key];
       if (value === undefined) {
         // Value-less parameters.
@@ -34,36 +40,40 @@ module.exports = function (action, args, params, gae_dir) {
     return p;
   }
 
-  function runScript(file, args, params, cb) {
-    var scriptArgs = args.concat(parseParams(params));
+  function runScript(file, args, cb) {
+    var scriptArgs = args.concat(parseParams(conf));
     gutil.log('[gulp-gae-improved]', scriptArgs);
-    proc = spawn(gae_dir + '/' + file, scriptArgs);
+    var proc = spawn(conf.gae_dir + '/' + file, scriptArgs);
+
     proc.stdout.pipe(process.stdout);
     proc.stderr.pipe(process.stderr);
-    cb && cb();
+
+    process.on('exit', function(){
+      stopScript(proc);
+    });
+    if (conf.async) {
+      cb();
+    } else {
+      proc.on('exit', cb);
+    }
   }
 
-  function stopScript() {
+  function stopScript(proc) {
     gutil.log('[gulp-gae-improved]', 'stopping script');
-    proc && proc.kill('SIGHUP');
-    proc = null;
+    proc.kill('SIGHUP');
   }
 
-  function bufferContents(file, enc, cb) {
+  function bufferContents(file, enc, next) {
     var appYamlPath = file.path,
-      shouldWait = false;
+      args;
 
-    if (action == 'dev_appserver.py') {
-      args = [appYamlPath].concat(args);
-    } else if (action == 'appcfg.py') {
-      args = args.concat([appYamlPath]);
-      shouldWait = true;
+    if (script == 'dev_appserver.py') {
+      args = [appYamlPath];
+    } else if (script == 'appcfg.py') {
+      args = conf.commands.concat([appYamlPath]);
     }
 
-    runScript(action, args, params, cb);
-
-    process.on('SIGINT', stopScript);
-    process.on('exit', stopScript);
+    runScript(script, args, next);
   }
 
   function endStream(cb) {
