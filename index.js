@@ -50,7 +50,7 @@ module.exports = function (script, options) {
 
     // Listen for the admin server to tell that we are ready
     proc.stderr.on('data', function(chunk){
-      if (!quiet) process.stdout.write(chunk);
+      if (!conf.quiet) process.stdout.write(chunk);
       if (chunk.toString().match(/Starting admin server at/g)) {
         gutil.log('[gulp-gae-improved]', 'ready');
 
