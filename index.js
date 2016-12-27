@@ -13,6 +13,7 @@ module.exports = function (script, options) {
   var defaults = {
     commands: [],
     async: true,
+    quiet: true,
     gae_dir: builtin_gae
   }
 
@@ -28,6 +29,7 @@ module.exports = function (script, options) {
       if (key === 'commands') continue;
       if (key === 'gae_dir') continue;
       if (key === 'async') continue;
+      if (key === 'quiet') continue;
 
       var value = params[key];
       if (value === undefined) {
@@ -48,7 +50,7 @@ module.exports = function (script, options) {
 
     // Listen for the admin server to tell that we are ready
     proc.stderr.on('data', function(chunk){
-      process.stdout.write(chunk);
+      if (!quiet) process.stdout.write(chunk);
       if (chunk.toString().match(/Starting admin server at/g)) {
         gutil.log('[gulp-gae-improved]', 'ready');
 
