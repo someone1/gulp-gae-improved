@@ -42,20 +42,32 @@ module.exports = function (script, options) {
 
   function runScript(file, args, cb) {
     var scriptArgs = args.concat(parseParams(conf));
-    gutil.log('[gulp-gae-improved]', scriptArgs);
+    gutil.log('[gulp-gae-improved]', "\n", scriptArgs);
     var proc = spawn(conf.gae_dir + '/' + file, scriptArgs);
+    var stream = this;
 
-    proc.stdout.pipe(process.stdout);
-    proc.stderr.pipe(process.stderr);
+    // Listen for the admin server to tell that we are ready
+    proc.stderr.on('data', function(chunk){
+      process.stdout.write(chunk);
+      if (chunk.toString().match(/Starting admin server at/g)) {
+        gutil.log('[gulp-gae-improved]', 'ready');
+
+        // Push process to stream, asynchronously or not
+        if (conf.async) {
+          stream.push(proc);
+          cb();
+        } else {
+          proc.on('exit', function(){
+            stream.push(proc);
+            cb();
+          });
+        }
+      }
+    });
 
     process.on('exit', function(){
       stopScript(proc);
     });
-    if (conf.async) {
-      cb();
-    } else {
-      proc.on('exit', cb);
-    }
   }
 
   function stopScript(proc) {
@@ -73,7 +85,7 @@ module.exports = function (script, options) {
       args = conf.commands.concat([appYamlPath]);
     }
 
-    runScript(script, args, next);
+    runScript.call(this, script, args, next);
   }
 
   function endStream(cb) {
