@@ -13,6 +13,7 @@ module.exports = function (script, options) {
   var defaults = {
     commands: [],
     async: true,
+    quiet: true,
     gae_dir: builtin_gae
   }
 
@@ -28,6 +29,7 @@ module.exports = function (script, options) {
       if (key === 'commands') continue;
       if (key === 'gae_dir') continue;
       if (key === 'async') continue;
+      if (key === 'quiet') continue;
 
       var value = params[key];
       if (value === undefined) {
@@ -42,20 +44,42 @@ module.exports = function (script, options) {
 
   function runScript(file, args, cb) {
     var scriptArgs = args.concat(parseParams(conf));
-    gutil.log('[gulp-gae-improved]', scriptArgs);
+    if(!conf.quiet) gutil.log('[gulp-gae-improved]', "\n", scriptArgs);
     var proc = spawn(conf.gae_dir + '/' + file, scriptArgs);
+    var stream = this;
 
-    proc.stdout.pipe(process.stdout);
-    proc.stderr.pipe(process.stderr);
+    // Listen for the admin server to tell that we are ready
+    proc.stderr.on('data', function(chunk){
+      var message = chunk.toString();
+
+      if (!conf.quiet) process.stdout.write(message);
+
+      var stripLog = function(message) {
+        return message.replace(/^.*\]\s/g, '');
+      };
+
+      if (message.match(/Starting admin server at/g)) {
+        if (conf.quiet) gutil.log('[gulp-gae-improved]', stripLog(message));
+
+        gutil.log('[gulp-gae-improved]', 'ready');
+        // Push process to stream, asynchronously or not
+        if (conf.async) {
+          stream.push(proc);
+          cb();
+        } else {
+          proc.on('exit', function(){
+            stream.push(proc);
+            cb();
+          });
+        }
+      } else if(message.match(/Starting/g) && conf.quiet) {
+        gutil.log('[gulp-gae-improved]', stripLog(message));
+      }
+    });
 
     process.on('exit', function(){
       stopScript(proc);
     });
-    if (conf.async) {
-      cb();
-    } else {
-      proc.on('exit', cb);
-    }
   }
 
   function stopScript(proc) {
@@ -73,7 +97,7 @@ module.exports = function (script, options) {
       args = conf.commands.concat([appYamlPath]);
     }
 
-    runScript(script, args, next);
+    runScript.call(this, script, args, next);
   }
 
   function endStream(cb) {
