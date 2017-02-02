@@ -92,7 +92,7 @@ module.exports = function (script, options) {
       args;
 
     if (script == 'dev_appserver.py') {
-      args = [appYamlPath];
+      args = [appYamlPath].concat(conf.commands);
     } else if (script == 'appcfg.py') {
       args = conf.commands.concat([appYamlPath]);
     }
